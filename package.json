@@ -1,0 +1,23 @@
+{
+  "name": "seng513-a3-w2018",
+  "version": "1.0.0",
+  "description": "a simple web chat application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spencer-m/SENG513-A3-W2018.git"
+  },
+  "author": "Spencer Manzon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spencer-m/SENG513-A3-W2018/issues"
+  },
+  "homepage": "https://github.com/spencer-m/SENG513-A3-W2018#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
+  }
+}
