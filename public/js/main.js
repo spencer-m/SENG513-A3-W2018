@@ -15,10 +15,18 @@ $(document).ready(function() {
         $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
 
-    $('#m').keyup(function(event) {
+    $('form').submit(function() {
+        socket.emit('chat', $('#m').val());
+        $('#m').val('');
+        return false;
+    });
+
+    /*
+    $('#m').keypress(function(event) {
         if (event.keyCode === 13) {
             $('#send').click();
         }
+        return false;
     });
 
     $('#send').click(function() {
@@ -26,6 +34,5 @@ $(document).ready(function() {
         $('#m').val('');
         return false;
     });
-
-    
+    */
 });

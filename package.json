@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/spencer-m/SENG513-A3-W2018#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "socket.io": "^2.0.4"
+    "socket.io": "^1.7.4"
   }
 }
