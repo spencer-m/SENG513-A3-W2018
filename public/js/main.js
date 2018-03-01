@@ -11,12 +11,21 @@ $(document).ready(function() {
     });
 
     socket.on('chat', function(msg) {
-        $('#messages').append($('<li>').text(msg));
+        $('#messages').append($('<div class="list-group-item">').text(msg));
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
 
-    $('form').submit(function() {
+    $('#m').keyup(function(event) {
+        if (event.keyCode === 13) {
+            $('#send').click();
+        }
+    });
+
+    $('#send').click(function() {
         socket.emit('chat', $('#m').val());
         $('#m').val('');
         return false;
     });
+
+    
 });

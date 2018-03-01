@@ -7,62 +7,67 @@
         <link rel="icon" href="img/favicon.ico">
         <title>nanoCHAT</title>
     </head>
-    <body>
-        
-        <div class="container-fluid">
+    <body style="background-image:url(img/bg.jpg); background-position:center; background-size:100%">
+        <div class="container bg-danger">
             <!-- Nickname Header -->
-            <div class="row">
-                Welcome. You are Spencer.
+            <div class="row" style="color: #ffffff">
+                <div class="col-6">
+                    <br>
+                    <h4>Welcome to nanoCHAT!</h4>
+                    <h5>You are Spencer.</h5>
+                    <br>
+                </div>
             </div>
             <!-- Messaging Interface: Message Box and User List Box -->
             <div class="row">
+                <!-- Message Box Header-->
+                <div class="col-9 bg-primary">
+                    <br>
+                    <h5>Messages</h5>
+                </div>
+                <!-- User List Box Header-->
+                <div class="col-3 bg-info">
+                    <br>
+                    <h5>User List</h5>
+                </div>
+            </div>
+            <div class="row" style="min-height:60vh; max-height:60vh;">
                 <!-- Message Box -->
-                <div class="col-8">
-                    Messeges
-                    <ul id="messages"></ul>
+                <div class="col-9 bg-primary d-flex flex-column-reverse">
+                    <div class="list-group" id="messages" style="overflow-y:auto;"></div>
                 </div>
                 <!-- User List Box -->
-                <div class="col-4">
-                    User List
-                    <ul>
-                        <li>theDoors</li>
+                <div class="col-3 bg-info" style="overflow-y:auto;">
+                    <ul class="list-group">
+                        <li class="list-group-item">theDoors</li>
                     </ul>
                 </div>
             </div>
+            <!-- Filler -->
+            <div class="row" style="min-height:5vh; max-height:5vh;">
+                <div class="col-9 bg-primary" style="overflow-y:auto;"></div>
+                <div class="col-3 bg-info" style="overflow-y:auto;"></div>
+            </div>
+        </div>
+
+        <div class="container fixed-bottom bg-warning">
             <!-- Messaging Interface: Entry Box and Send Button -->
             <div class="row">
-                <!-- Entry Box -->
-                <div class="col-10">
-                    <input class="form-control" id="m" autocomplete="off" />
-                </div>
-                <!-- Send Button -->
-                <div class="col-2">
-                    <button type="button" class="btn">Send</button>
+                <div class="col">
+                    <br>
+                    <div class="input-group">
+                        <input class="form-control" id="m" autocomplete="off" placeholder="Enter message here..." />
+                        <br>
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" id="send">Send</button>
+                        </span>
+                    </div>
+                    <!-- Status Message -->
+                    <i>status message here</i>
+                    <br><br>
                 </div>
             </div>
-            <!-- Status Message -->
-            <div class="row">
-                Status Message here
-            </div>
         </div>
-       
-
-        
-        
-        <div class="container">
-            
-        </div>
-        
-        
-
-        <!-- Entry Box -->
-
-        <!-- Send Button Box -->
-        <div class="container">
-           
-        </div>
-
-        <!-- Status Messages Box -->
 
         <!-- Scripts -->
         <script src="js/jquery-3.3.1.min.js"></script>
