@@ -2,6 +2,7 @@ $(document).ready(function() {
 
     var socket = io();
 
+    // from server
     socket.on('connect', function() {
         console.log('conencted to server');
     });
@@ -15,24 +16,28 @@ $(document).ready(function() {
         $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
 
-    $('form').submit(function() {
-        socket.emit('chat', $('#m').val());
-        $('#m').val('');
-        return false;
+    socket.on('updateNickHeader', function(nick) {
+        $('#nickHeader').text('You are ' + nick);
     });
 
-    /*
-    $('#m').keypress(function(event) {
-        if (event.keyCode === 13) {
-            $('#send').click();
+    socket.on('updateUserlist', function(users) {
+        // clear current list
+        $('#userlist').empty();
+        for (let s in users) {
+            let nick = users[s].nick;
+            let li = '<li class="list-group-item" id="' + nick + '">' + nick + '</li>';
+            $('#userlist').append(li);
         }
-        return false;
     });
 
-    $('#send').click(function() {
-        socket.emit('chat', $('#m').val());
-        $('#m').val('');
+    socket.on('flashStatusMessage', function(statmsg) {
+        $('#statusmessage').text(statmsg).fadeIn(1).delay(1000).fadeOut();
+    });
+
+    // page commands
+    $('form').submit(function() {
+        socket.emit('chat', $('#inputbox').val());
+        $('#inputbox').val('');
         return false;
     });
-    */
 });

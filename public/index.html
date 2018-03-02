@@ -14,7 +14,7 @@
                 <div class="col-6">
                     <br>
                     <h4>Welcome to nanoCHAT!</h4>
-                    <h5>You are Spencer.</h5>
+                    <h5 id="nickHeader">...</h5>
                     <br>
                 </div>
             </div>
@@ -38,9 +38,7 @@
                 </div>
                 <!-- User List Box -->
                 <div class="col-3 bg-info" style="overflow-y:auto;">
-                    <ul class="list-group">
-                        <li class="list-group-item">Spencer</li>
-                    </ul>
+                    <ul class="list-group" id="userlist"></ul>
                 </div>
             </div>
             <!-- Filler -->
@@ -57,7 +55,7 @@
                     <br>
                     <form>
                         <div class="input-group">
-                            <input class="form-control" id="m" autocomplete="off" placeholder="Enter message here..." />
+                            <input class="form-control" id="inputbox" autocomplete="off" placeholder="Enter message here..." />
                             <br>
                             <span class="input-group-btn">
                                 <button class="btn btn-primary">Send</button>
@@ -65,7 +63,7 @@
                         </div>
                     </form>
                     <!-- Status Message -->
-                    <i>status message here</i>
+                    <i id="statusmessage"></i>
                     <br><br>
                 </div>
             </div>
