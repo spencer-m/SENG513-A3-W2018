@@ -5,7 +5,7 @@
  */
 
 // variables
-let MAX_MSG_COUNT = 20;
+const MAX_MSG_COUNT = 20;
 var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
@@ -84,14 +84,21 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function(socket) {
 
     // init connection
-    users[socket.id] = { nick: generateNickname() };
+    users[socket.id] = { nick: generateNickname(), nickcolor: '#ff99bb' };
     socket.emit('updateNickHeader', users[socket.id].nick);
     io.emit('updateUserlist', users);
 
     socket.on('chat', function(msg) {
 
-        let fullmsg;
+        // set defaults
         let time = timestamp();
+        let msgobj = {
+            message: msg,
+            style: 'regular',
+            timestamp: time,
+            nick: users[socket.id].nick,
+            nickcolored: '<span style="color: ' + users[socket.id].nickcolor + '">'+ users[socket.id].nick + '</span>'
+        };
 
         // command handler
         if (msg.charAt(0) === '/') {
@@ -107,10 +114,11 @@ io.on('connection', function(socket) {
                         users[socket.id].nick = cmd[1];
                         socket.emit('updateNickHeader', users[socket.id].nick);
                         io.emit('updateUserlist', users);
-                        fullmsg = '(' + time + ') ' + ': ' + oldnick + ' changed nickname to ' + users[socket.id].nick;
+                        msgobj.message = oldnick + ' changed nickname to ' + users[socket.id].nick;
+                        msgobj.style = 'italic';
                     }
                     else if (users[socket.id].nick === cmd[1]) {
-                        socket.emit('flashStatusMessage', 'It is your current nickname. Please choose another one.');
+                        socket.emit('flashStatusMessage', 'That is your current nickname. Please choose another one.');
                         return;
                     }
                     else {
@@ -124,20 +132,11 @@ io.on('connection', function(socket) {
                 }
             }
         }
-        else {
-            fullmsg = '(' + time + ') ' + users[socket.id].nick + ': ' + msg;
 
-            chatlog.push({
-                message: msg,
-                timestamp: time,
-                nick: users[socket.id].nick,
-                nickcolor: '000000'
-            });
-            if (chatlog.length > MAX_MSG_COUNT)
-                chatlog.shift();
-        }
-
-        io.emit('chat', fullmsg);
+        chatlog.push(msgobj);
+        if (chatlog.length > MAX_MSG_COUNT)
+            chatlog.shift();
+        io.emit('chat', msgobj);
     });
 
     socket.on('disconnect', function() {

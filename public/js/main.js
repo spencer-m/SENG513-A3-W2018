@@ -11,8 +11,21 @@ $(document).ready(function() {
         console.log('disconnected from server');
     });
 
-    socket.on('chat', function(msg) {
-        $('#messages').append($('<div class="list-group-item">').text(msg));
+    socket.on('chat', function(msgobj) {
+
+        let clientCurrNick = $('#nickHeader').text().split('You are ')[1];
+        if  (msgobj.nick === clientCurrNick)
+            msgobj.message = '<b>' + msgobj.message + '</b>';
+
+        if (msgobj.style === 'regular') {
+            let msgfmt = '(' + msgobj.timestamp + ') ' + msgobj.nickcolored + ': ' +  msgobj.message;
+            $('#messages').append($('<div class="list-group-item">').html(msgfmt));
+        }
+        else if (msgobj.style === 'italic') {
+            let msgfmt = '<i> (' + msgobj.timestamp + ')' + ': ' +  msgobj.message + '</i>';
+            $('#messages').append($('<div class="list-group-item">').html(msgfmt));
+        }
+
         $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
 
@@ -31,7 +44,7 @@ $(document).ready(function() {
     });
 
     socket.on('flashStatusMessage', function(statmsg) {
-        $('#statusmessage').text(statmsg).fadeIn(1).delay(1000).fadeOut();
+        $('#statusmessage').text(statmsg).fadeIn(1).delay(1600).fadeOut();
     });
 
     // page commands
