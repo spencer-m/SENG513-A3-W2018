@@ -1,15 +1,19 @@
+function updateCookie(nick) {
+    // make expiry date
+    let currDate = new Date();
+    let day = 1; // one day
+    currDate.setTime(currDate.getTime() + (day*24*60*60*1000));
+    let expiry = 'expires=' + currDate.toUTCString() + ';';
+    // key and value
+    let keyval = 'nick=' + nick + ';';
+    document.cookie = keyval + expiry + 'path=/';
+}
+
 $(document).ready(function() {
 
     var socket = io();
 
     // from server
-    socket.on('connect', function() {
-        console.log('conencted to server');
-    });
-
-    socket.on('disconnect', function() {
-        console.log('disconnected from server');
-    });
 
     socket.on('chat', function(msgobj) {
 
@@ -43,8 +47,12 @@ $(document).ready(function() {
         }
     });
 
-    socket.on('flashStatusMessage', function(statmsg) {
-        $('#statusmessage').text(statmsg).fadeIn(1).delay(1600).fadeOut();
+    socket.on('flashStatusMessage', function(statmsg, dTime) {
+        $('#statusmessage').text(statmsg).fadeIn(1).delay(dTime).fadeOut();
+    });
+
+    socket.on('saveCookie', function(data) {
+        document.cookie = data;
     });
 
     // page commands
