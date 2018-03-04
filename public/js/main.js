@@ -31,9 +31,8 @@ function loadChatlog(chatlog) {
             let nickcolored = '<span style="color: ' + c.nickcolor + '">'+ c.nick + '</span>';
             msgfmt = '(' + c.timestamp + ') ' + nickcolored + ': ' +  message;
         }
-        else if (c.type === 'actionmsg') {
-            continue;
-        }
+        else if (c.type === 'actionmsg')
+            msgfmt = '<i> (' + c.timestamp + ')' + ': ' +  c.message + '</i>';
 
         $('#messages').append($('<div class="list-group-item">').html(msgfmt));
     }
@@ -47,26 +46,9 @@ $(document).ready(function() {
 
     // from server
 
-    socket.on('chat', function(msgobj) {
-
-        let clientCurrNick = $('#nickHeader').text().split('You are ')[1];
-        if  (msgobj.nick === clientCurrNick)
-            msgobj.message = '<b>' + msgobj.message + '</b>';
-
-        if (msgobj.style === 'regular') {
-            let msgfmt = '(' + msgobj.timestamp + ') ' + msgobj.nickcolored + ': ' +  msgobj.message;
-            $('#messages').append($('<div class="list-group-item">').html(msgfmt));
-        }
-        else if (msgobj.style === 'italic') {
-            let msgfmt = '<i> (' + msgobj.timestamp + ')' + ': ' +  msgobj.message + '</i>';
-            $('#messages').append($('<div class="list-group-item">').html(msgfmt));
-        }
-
-        $('#messages').scrollTop($('#messages')[0].scrollHeight);
-    });
-
     socket.on('chatRefresh', function(chatlog) {
         loadChatlog(chatlog);
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
 
     socket.on('updateNickHeader', function(nick) {

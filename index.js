@@ -9,6 +9,8 @@
 
 // variables
 const MAX_MSG_COUNT = 5;
+const SHORT_DELAY = 2000;
+const LONG_DELAY = 4000;
 var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
@@ -101,6 +103,49 @@ function nickSequence(socket) {
     io.emit('updateUserlist', users);
 }
 
+function execCommand(msgobj, socket) {
+
+    let cmd = msgobj.message;
+    cmd = cmd.substring(1).split(' ');
+    if (cmd.length != 2)
+        socket.emit('flashStatusMessage', 'Invalid command. Try again.', SHORT_DELAY);
+    else {
+        if (cmd[0] === 'nick')
+            msgobj = changeNick(cmd[1], msgobj, socket);
+        else 
+            socket.emit('flashStatusMessage', 'Invalid command. Try again.', SHORT_DELAY);
+    }
+    return msgobj;
+}
+
+function changeNick(newNick, msgobj, socket) {
+
+    if (isNicknameUnique(newNick)) {
+        let oldNick = users[socket.id].nick;
+        users[socket.id].nick = newNick;
+        updateChatlogNick(oldNick, newNick);
+        nickSequence(socket);
+        msgobj.message = oldNick + ' changed nickname to ' + users[socket.id].nick;
+        msgobj.type = 'actionmsg';
+    }
+    else if (users[socket.id].nick === newNick)
+        socket.emit('flashStatusMessage', 'That is your current nickname. Please choose another one.', LONG_DELAY);
+    else
+        socket.emit('flashStatusMessage', 'Nickname already exists. Try again.', LONG_DELAY);
+
+    return msgobj;
+}
+
+function updateChatlogNick(oldNick, newNick) {
+
+    for (let c of chatlog) {
+        if ((c.type === 'chatmsg') && (c.nick === oldNick))
+            c.nick = newNick;
+    }
+    io.emit('chatRefresh', chatlog);
+}
+
+
 // server core
 
 http.listen( port, function () {
@@ -119,6 +164,10 @@ io.use(cookieParser());
 io.on('connection', function(socket) {
 
     // init connection
+
+    /* TODO
+        problem: new tab makes a new username
+    */
     // when user is brand new
     if (socket.request.cookies.nick === undefined)
         users[socket.id] = { nick: generateNickname(), nickcolor: '#000000' };
@@ -127,12 +176,13 @@ io.on('connection', function(socket) {
         if (isNicknameUnique(socket.request.cookies.nick))
             users[socket.id] = { nick: socket.request.cookies.nick, nickcolor: '#000000' };
         else {
-            socket.emit('flashStatusMessage', 'Sorry, nickname has been taken. Assigning to a different nickname.', 3000);
+            socket.emit('flashStatusMessage', 'Sorry, nickname has been taken. Assigning to a different nickname.', LONG_DELAY);
             users[socket.id] = { nick: generateNickname(), nickcolor: '#000000' };
         }
     }
 
     // new user in chat
+    socket.emit('chatRefresh', chatlog);
     nickSequence(socket);
 
     socket.on('chat', function(msg) {
@@ -148,38 +198,12 @@ io.on('connection', function(socket) {
         };
 
         // command handler
-        /*
         if (msg.charAt(0) === '/') {
-            let cmd = msg.substring(1).split(' ');
-            if (cmd.length != 2) {
-                socket.emit('flashStatusMessage', 'Invalid command. Try again.');
-                return;
-            }
-            else {
-                if (cmd[0] === 'nick') {
-                    if (isNicknameUnique(cmd[1])) {
-                        let oldnick = users[socket.id].nick;
-                        users[socket.id].nick = cmd[1];
-                        nickSequence(socket);
-                        msgobj.message = oldnick + ' changed nickname to ' + users[socket.id].nick;
-                        msgobj.style = 'italic';
-                    }
-                    else if (users[socket.id].nick === cmd[1]) {
-                        socket.emit('flashStatusMessage', 'That is your current nickname. Please choose another one.', 2000);
-                        return;
-                    }
-                    else {
-                        socket.emit('flashStatusMessage', 'Nickname already exists. Try again.', 2000);
-                        return;
-                    }
-                }
-                else {
-                    socket.emit('flashStatusMessage', 'Invalid command. Try again.', 1600);
-                    return;
-                }
+            msgobj = execCommand(msgobj, socket);
+            if (msgobj.type !== 'actionmsg') {
+                return; // exit function if execCommand fails
             }
         }
-        */
 
         chatlog.push(msgobj);
         if (chatlog.length > MAX_MSG_COUNT)
