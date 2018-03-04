@@ -8,7 +8,7 @@
  */
 
 // variables
-const MAX_MSG_COUNT = 20;
+const MAX_MSG_COUNT = 500;
 const SHORT_DELAY = 2000;
 const LONG_DELAY = 4000;
 var express = require('express');
@@ -124,7 +124,7 @@ function execCommand(msgobj, socket) {
 /**
  * Changes the user's current nickname to a new one.
  * Updates the userlist and chat log values.
- * Updates the client's display and cookies. Informs other cliends of the change.
+ * Updates the client's display and cookies. Informs other clients of the change.
  * @param {String} newNick 
  * @param {Object} msgobj 
  * @param {Object} socket 
@@ -147,6 +147,12 @@ function changeNick(newNick, msgobj, socket) {
     return msgobj;
 }
 
+/**
+ * Traverses through the chatlog and changes old nickname associated with 
+ * each message object with the new nickname
+ * @param {String} oldNick 
+ * @param {String} newNick 
+ */
 function updateChatlogNick(oldNick, newNick) {
 
     for (let c of chatlog) {
@@ -156,31 +162,39 @@ function updateChatlogNick(oldNick, newNick) {
     io.emit('chatRefresh', chatlog);
 }
 
-function isValidHex(hex) {
-    
-    if (hex.toLowerCase().match(/^[a-f0-9]{6}$/) === null)
-        return false;
-    return true;
-}
-
+/**
+ * Changes the user's current nickname color to a new one.
+ * Updates the userlist and chat log values.
+ * Updates the client's display. Informs other clients of the change.
+ * @param {String} newNickColor 
+ * @param {Object} msgobj 
+ * @param {Object} socket 
+ */
 function changeNickColor(newNickColor, msgobj, socket) {
 
+    // check if the new color is the same to the current one
     if (users[socket.id].nickcolor === newNickColor)
         socket.emit('flashStatusMessage', 'That is your current nickname color. Please choose another one.', LONG_DELAY);
+    // check if the new color is a valid hexadecimal value
     else if (newNickColor.toLowerCase().match(/^[a-f0-9]{6}$/) !== null) {
         let oldNickColor = users[socket.id].nickcolor;
         users[socket.id].nickcolor = newNickColor;
+        io.emit('updateUserlist', users);
         updateChatlogNickColor(users[socket.id].nick, newNickColor);
-        nickSequence(socket);
         msgobj.message = users[socket.id].nick + ' changed nickname color ' + oldNickColor + ' to ' + newNickColor;
         msgobj.type = 'actionmsg';
     }
     else
         socket.emit('flashStatusMessage', 'Invalid nickname color. Try again.', LONG_DELAY);
-
     return msgobj;
 }
 
+/**
+ * Traverses through the chatlog and changes old nickname color associated with 
+ * the user's nick to each message object with the new nickname color
+ * @param {String} nick 
+ * @param {String} nickcolor 
+ */
 function updateChatlogNickColor(nick, nickcolor) {
 
     for (let c of chatlog) {

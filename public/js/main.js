@@ -1,3 +1,9 @@
+/**
+ * SENG 513 Assignment 3
+ * Spencer Manzon
+ * 10129731
+ * 
+ */
 
 /**
  * Clears and reloads the chatlog
