@@ -8,7 +8,7 @@
  */
 
 // variables
-const MAX_MSG_COUNT = 5;
+const MAX_MSG_COUNT = 20;
 const SHORT_DELAY = 2000;
 const LONG_DELAY = 4000;
 var express = require('express');
@@ -19,8 +19,6 @@ var cookieParser = require('socket.io-cookie-parser');
 var port = process.env.PORT || 3000;
 let chatlog = [];
 let users = {};
-
-// helper functions
 
 /**
  * Returns the current time with the format MMM DD HH:MM::SS
@@ -36,12 +34,10 @@ function timestamp() {
 
 /**
  * Generates a unique nickname from the user list
- * @param {list} ulist 
  */
 function generateNickname() {
 
     let nick;
-
     // keep generating nickname until unique
     while (true) {
         
@@ -52,7 +48,6 @@ function generateNickname() {
         if (isNicknameUnique(nick))
             break;
     }
-    
     return nick;
 }
 
@@ -69,7 +64,6 @@ function isNicknameUnique(nick) {
             break;
         }
     }
-
     return isUnique;
 }
 
@@ -103,10 +97,17 @@ function nickSequence(socket) {
     io.emit('updateUserlist', users);
 }
 
+/**
+ * Processes supported commaands from given message object
+ * @param {Object} msgobj 
+ * @param {Object} socket 
+ */
 function execCommand(msgobj, socket) {
 
     let cmd = msgobj.message;
     cmd = cmd.substring(1).split(' ');
+
+    // supported commands: /nick <newnick> and /nickcolor <hexcolor>
     if (cmd.length != 2)
         socket.emit('flashStatusMessage', 'Invalid command. Try again.', SHORT_DELAY);
     else {
@@ -120,6 +121,14 @@ function execCommand(msgobj, socket) {
     return msgobj;
 }
 
+/**
+ * Changes the user's current nickname to a new one.
+ * Updates the userlist and chat log values.
+ * Updates the client's display and cookies. Informs other cliends of the change.
+ * @param {String} newNick 
+ * @param {Object} msgobj 
+ * @param {Object} socket 
+ */
 function changeNick(newNick, msgobj, socket) {
 
     if (isNicknameUnique(newNick)) {
@@ -182,7 +191,6 @@ function updateChatlogNickColor(nick, nickcolor) {
 }
 
 // server core
-
 http.listen( port, function () {
     console.log('*-----------------------------------*');
     console.log('| server is ready.');
@@ -192,9 +200,6 @@ http.listen( port, function () {
 });
 
 app.use(express.static(__dirname + '/public'));
-
-// io is for everyone
-// socket is for specific one
 io.use(cookieParser());
 io.on('connection', function(socket) {
 
@@ -203,6 +208,8 @@ io.on('connection', function(socket) {
     /* TODO
         problem: new tab makes a new username
     */
+    // nick assignment
+
     // when user is brand new
     if (socket.request.cookies.nick === undefined)
         users[socket.id] = { nick: generateNickname(), nickcolor: '000000' };
@@ -217,9 +224,11 @@ io.on('connection', function(socket) {
     }
 
     // new user in chat
-    socket.emit('chatRefresh', chatlog);
     nickSequence(socket);
+    // load chat log
+    socket.emit('chatRefresh', chatlog);
 
+    // when chat signal is received, add message to chat log and send signal to reload chatlog to all clients
     socket.on('chat', function(msg) {
 
         // set defaults
@@ -240,12 +249,16 @@ io.on('connection', function(socket) {
             }
         }
 
+        // add message to chatlog
         chatlog.push(msgobj);
+        // delete oldest when chatlog is over MAX_MSG_COUNT
         if (chatlog.length > MAX_MSG_COUNT)
             chatlog.shift();
+        // tell all clients to reload chatlog
         io.emit('chatRefresh', chatlog);
     });
 
+    // delete user from userlist and tell cliends to update userlist
     socket.on('disconnect', function() {
         delete users[socket.id];
         io.emit('updateUserlist', users);
