@@ -8,7 +8,7 @@
  */
 
 // variables
-const MAX_MSG_COUNT = 20;
+const MAX_MSG_COUNT = 5;
 var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
@@ -140,14 +140,15 @@ io.on('connection', function(socket) {
         // set defaults
         let time = timestamp();
         let msgobj = {
+            type: 'chatmsg',
             message: msg,
-            style: 'regular',
             timestamp: time,
             nick: users[socket.id].nick,
-            nickcolored: '<span style="color: ' + users[socket.id].nickcolor + '">'+ users[socket.id].nick + '</span>'
+            nickcolor: users[socket.id].nickcolor,
         };
 
         // command handler
+        /*
         if (msg.charAt(0) === '/') {
             let cmd = msg.substring(1).split(' ');
             if (cmd.length != 2) {
@@ -178,11 +179,12 @@ io.on('connection', function(socket) {
                 }
             }
         }
+        */
 
         chatlog.push(msgobj);
         if (chatlog.length > MAX_MSG_COUNT)
             chatlog.shift();
-        io.emit('chat', msgobj);
+        io.emit('chatRefresh', chatlog);
     });
 
     socket.on('disconnect', function() {

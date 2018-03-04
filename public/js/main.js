@@ -1,17 +1,49 @@
-function updateCookie(nick) {
-    // make expiry date
-    let currDate = new Date();
-    let day = 1; // one day
-    currDate.setTime(currDate.getTime() + (day*24*60*60*1000));
-    let expiry = 'expires=' + currDate.toUTCString() + ';';
-    // key and value
-    let keyval = 'nick=' + nick + ';';
-    document.cookie = keyval + expiry + 'path=/';
+
+/**
+ * Parse cookie into object and get value of key.
+ * @param {String} key 
+ */
+function getCookieValue(key) {
+
+    let cookies = document.cookie.split('; ');
+    let cookieObj = {};
+    for (let c of cookies) {
+        let keyval = c.split('=', 2);
+        cookieObj[keyval[0]] = keyval[1];
+    }
+    return cookieObj[key];
+}
+
+function loadChatlog(chatlog) {
+
+    $('#messages').empty();
+    let clientNick = getCookieValue('nick');
+    for (let c of chatlog) {
+
+        // default error message
+        let msgfmt = '<b><i>(' + c.timestamp + ') Fatal Error: Invalid Message Type!</i></b>';
+
+        if (c.type === 'chatmsg') {
+            let message = c.message;
+            if (c.nick === clientNick)
+                message = '<b>' + c.message + '</b>';
+            // color nickname here
+            let nickcolored = '<span style="color: ' + c.nickcolor + '">'+ c.nick + '</span>';
+            msgfmt = '(' + c.timestamp + ') ' + nickcolored + ': ' +  message;
+        }
+        else if (c.type === 'actionmsg') {
+            continue;
+        }
+
+        $('#messages').append($('<div class="list-group-item">').html(msgfmt));
+    }
 }
 
 $(document).ready(function() {
 
     var socket = io();
+
+    $('#inputbox').focus();
 
     // from server
 
@@ -31,6 +63,10 @@ $(document).ready(function() {
         }
 
         $('#messages').scrollTop($('#messages')[0].scrollHeight);
+    });
+
+    socket.on('chatRefresh', function(chatlog) {
+        loadChatlog(chatlog);
     });
 
     socket.on('updateNickHeader', function(nick) {
