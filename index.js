@@ -112,6 +112,8 @@ function execCommand(msgobj, socket) {
     else {
         if (cmd[0] === 'nick')
             msgobj = changeNick(cmd[1], msgobj, socket);
+        else if (cmd[0] === 'nickcolor')
+            msgobj = changeNickColor(cmd[1], msgobj, socket);
         else 
             socket.emit('flashStatusMessage', 'Invalid command. Try again.', SHORT_DELAY);
     }
@@ -145,6 +147,39 @@ function updateChatlogNick(oldNick, newNick) {
     io.emit('chatRefresh', chatlog);
 }
 
+function isValidHex(hex) {
+    
+    if (hex.toLowerCase().match(/^[a-f0-9]{6}$/) === null)
+        return false;
+    return true;
+}
+
+function changeNickColor(newNickColor, msgobj, socket) {
+
+    if (users[socket.id].nickcolor === newNickColor)
+        socket.emit('flashStatusMessage', 'That is your current nickname color. Please choose another one.', LONG_DELAY);
+    else if (newNickColor.toLowerCase().match(/^[a-f0-9]{6}$/) !== null) {
+        let oldNickColor = users[socket.id].nickcolor;
+        users[socket.id].nickcolor = newNickColor;
+        updateChatlogNickColor(users[socket.id].nick, newNickColor);
+        nickSequence(socket);
+        msgobj.message = users[socket.id].nick + ' changed nickname color ' + oldNickColor + ' to ' + newNickColor;
+        msgobj.type = 'actionmsg';
+    }
+    else
+        socket.emit('flashStatusMessage', 'Invalid nickname color. Try again.', LONG_DELAY);
+
+    return msgobj;
+}
+
+function updateChatlogNickColor(nick, nickcolor) {
+
+    for (let c of chatlog) {
+        if ((c.type === 'chatmsg') && (c.nick === nick))
+            c.nickcolor = nickcolor;
+    }
+    io.emit('chatRefresh', chatlog);
+}
 
 // server core
 
@@ -170,14 +205,14 @@ io.on('connection', function(socket) {
     */
     // when user is brand new
     if (socket.request.cookies.nick === undefined)
-        users[socket.id] = { nick: generateNickname(), nickcolor: '#000000' };
+        users[socket.id] = { nick: generateNickname(), nickcolor: '000000' };
     // when user is returning user
     else {
         if (isNicknameUnique(socket.request.cookies.nick))
-            users[socket.id] = { nick: socket.request.cookies.nick, nickcolor: '#000000' };
+            users[socket.id] = { nick: socket.request.cookies.nick, nickcolor: '000000' };
         else {
             socket.emit('flashStatusMessage', 'Sorry, nickname has been taken. Assigning to a different nickname.', LONG_DELAY);
-            users[socket.id] = { nick: generateNickname(), nickcolor: '#000000' };
+            users[socket.id] = { nick: generateNickname(), nickcolor: '000000' };
         }
     }
 

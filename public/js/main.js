@@ -28,7 +28,7 @@ function loadChatlog(chatlog) {
             if (c.nick === clientNick)
                 message = '<b>' + c.message + '</b>';
             // color nickname here
-            let nickcolored = '<span style="color: ' + c.nickcolor + '">'+ c.nick + '</span>';
+            let nickcolored = '<span style="color: #' + c.nickcolor + '">'+ c.nick + '</span>';
             msgfmt = '(' + c.timestamp + ') ' + nickcolored + ': ' +  message;
         }
         else if (c.type === 'actionmsg')
@@ -60,7 +60,8 @@ $(document).ready(function() {
         $('#userlist').empty();
         for (let s in users) {
             let nick = users[s].nick;
-            let li = '<li class="list-group-item" id="' + nick + '">' + nick + '</li>';
+            let nickcolored = '<span style="color: #' + users[s].nickcolor + '">'+ nick + '</span>';
+            let li = '<li class="list-group-item" id="' + nick + '">' + nickcolored + '</li>';
             $('#userlist').append(li);
         }
     });
