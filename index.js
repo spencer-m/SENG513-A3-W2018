@@ -245,6 +245,11 @@ io.on('connection', function(socket) {
     // when chat signal is received, add message to chat log and send signal to reload chatlog to all clients
     socket.on('chat', function(msg) {
 
+        if (msg === '') {
+            socket.emit('flashStatusMessage', 'Unable to send empty message.', LONG_DELAY);
+            return;
+        }
+
         // set defaults
         let time = timestamp();
         let msgobj = {

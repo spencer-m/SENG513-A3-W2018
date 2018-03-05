@@ -13,10 +13,10 @@
         <link rel="icon" href="img/favicon.ico">
         <title>nanoCHAT</title>
     </head>
-    <body style="background-image:url(img/bg.jpg); background-position:center; background-size:100%">
-        <div class="container bg-danger">
+    <body style="background-image:url(img/bg.jpg); background-position:center; background-size:cover;">
+        <div class="container">
             <!-- Nickname Header -->
-            <div class="row" style="color: #ffffff">
+            <div class="row" style="color:#ffffff;">
                 <div class="col-6">
                     <br>
                     <h4>Welcome to nanoCHAT!</h4>
@@ -25,38 +25,34 @@
                 </div>
             </div>
             <!-- Messaging Interface: Message Box and User List Box -->
-            <div class="row">
+            <div class="row" style="color:#ffffff;">
                 <!-- Message Box Header-->
-                <div class="col-9 bg-primary">
+                <div class="col-9">
                     <br>
-                    <h5>Messages</h5>
+                    <h4>Messages</h4>
                 </div>
                 <!-- User List Box Header-->
-                <div class="col-3 bg-info">
+                <div class="col-3">
                     <br>
-                    <h5>User List</h5>
+                    <h4>User List</h4>
                 </div>
             </div>
-            <div class="row" style="min-height:60vh; max-height:60vh;">
+            <div class="row" style="min-height:62vh; max-height:62vh;">
                 <!-- Message Box -->
-                <div class="col-9 bg-primary d-flex flex-column-reverse">
+                <div class="col-9 d-flex flex-column-reverse" style="opacity:0.75;">
                     <div class="list-group" id="messages" style="overflow-y:auto;"></div>
                 </div>
                 <!-- User List Box -->
-                <div class="col-3 bg-info" style="overflow-y:auto;">
+                <div class="col-3 border-left" style="overflow-y:auto; opacity:0.75;">
                     <ul class="list-group" id="userlist"></ul>
                 </div>
             </div>
-            <!-- Filler -->
-            <div class="row" style="min-height:2vh; max-height:2vh;">
-                <div class="col-9 bg-primary" style="overflow-y:auto;"></div>
-                <div class="col-3 bg-info" style="overflow-y:auto;"></div>
-            </div>
             <!-- Messaging Interface: Entry Box and Send Button -->
-            <div class="row bg-warning">
+            <div class="row">
                 <div class="col">
                     <br>
-                    <form>
+                    <!-- Entry Box -->
+                    <form style="padding-bottom: 0.2em">
                         <div class="input-group">
                             <input class="form-control" id="inputbox" autocomplete="off" placeholder="Enter message here..." />
                             <br>
@@ -66,7 +62,7 @@
                         </div>
                     </form>
                     <!-- Status Message -->
-                    <i class="small" id="statusmessage"></i>
+                    <i id="statusmessage" style="color:#ffffff; font-weight:bold; text-shadow: 3px 3px 8px #000000"></i>
                     <br><br>
                 </div>
             </div>
