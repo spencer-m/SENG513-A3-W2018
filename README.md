@@ -1,5 +1,5 @@
 # nanoCHAT
-A simple chat app that uses Bootstrap, jQuery and Node.js.
+A simple chat app that uses JavaScript, Bootstrap, jQuery, Node.js and socket.io.
 
 ### Getting Started
 Make sure to have Node.js installed on the computer to be used as a server for the application. A browser such as Google Chrome and Mozilla Firefox with JavaScript support should be sufficient enough to run the client side of the application.
@@ -43,4 +43,4 @@ http://localhost:3000
 
 ### License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
