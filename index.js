@@ -2,9 +2,6 @@
  * SENG 513 Assignment 3
  * Spencer Manzon
  * 10129731
- * 
- * Known Flaws:
- *  Someone can take another user's nickname and change the ownership of the messages
  */
 
 // variables
@@ -111,10 +108,21 @@ function execCommand(msgobj, socket) {
     if (cmd.length != 2)
         socket.emit('flashStatusMessage', 'Invalid command. Try again.', SHORT_DELAY);
     else {
-        if (cmd[0] === 'nick')
-            msgobj = changeNick(cmd[1], msgobj, socket);
-        else if (cmd[0] === 'nickcolor')
-            msgobj = changeNickColor(cmd[1], msgobj, socket);
+        // protect from some bad user input
+        cmd[1] = escapeHtml(cmd[1]);
+
+        if (cmd[0] === 'nick') {
+            if (isEscapedHtml(cmd[1]))
+                msgobj = changeNick(cmd[1], msgobj, socket);
+            else
+                socket.emit('flashStatusMessage', 'Unescaped HTML characters detected. Try again.', SHORT_DELAY);
+        }
+        else if (cmd[0] === 'nickcolor') {
+            if (isEscapedHtml(cmd[1]))
+                msgobj = changeNickColor(cmd[1], msgobj, socket);
+            else
+                socket.emit('flashStatusMessage', 'Unescaped HTML characters detected. Try again.', SHORT_DELAY);
+        }
         else 
             socket.emit('flashStatusMessage', 'Invalid command. Try again.', SHORT_DELAY);
     }
@@ -204,6 +212,38 @@ function updateChatlogNickColor(nick, nickcolor) {
     io.emit('chatRefresh', chatlog);
 }
 
+/**
+ * Invalidate HTML tags.
+ * Source:
+ * https://stackoverflow.com/questions/24816/escaping-html-strings-with-jquery
+ * @param {String} string 
+ */
+var entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
+};
+
+function escapeHtml (string) {
+    return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+        return entityMap[s];
+    });
+}
+
+/**
+ * Checks if string is unescaped.
+ * @param {String} string 
+ */
+function isEscapedHtml (string) {
+    let string2 = escapeHtml(string);
+    return (string2 === string);
+}
+
 // server core
 http.listen( port, function () {
     console.log('*-----------------------------------*');
@@ -219,11 +259,7 @@ io.on('connection', function(socket) {
 
     // init connection
 
-    /* TODO
-        problem: new tab makes a new username
-    */
     // nick assignment
-
     // when user is brand new
     if (socket.request.cookies.nick === undefined)
         users[socket.id] = { nick: generateNickname(), nickcolor: '000000' };
@@ -264,10 +300,12 @@ io.on('connection', function(socket) {
         if (msg.charAt(0) === '/') {
             msgobj = execCommand(msgobj, socket);
             if (msgobj.type !== 'actionmsg') {
-                return; // exit function if execCommand fails
+                return; // exit function if execCommand() fails
             }
         }
 
+        // protect from some bad user input
+        msgobj.message = escapeHtml(msgobj.message);
         // add message to chatlog
         chatlog.push(msgobj);
         // delete oldest when chatlog is over MAX_MSG_COUNT

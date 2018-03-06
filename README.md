@@ -24,10 +24,21 @@ Run the server using the index.js file.
 node index.js
 ```
 When all goes well, the server will tell it is ready.
+
 Then, open up a browser and point to the localhost address at port 3000.
 ```
 http://localhost:3000
 ```
+
+### Screenshot
+
+![Screenshot of App](screenshot.png?raw=true)
+
+### Known Quirks
+
+The app only implements a basic cookie. Running multiple instances of the app on the same machine will mess up the cookie.
+
+Also, since there is no authentication, someone can steal the ownership of messages by hijacking another user's nickname.
 
 ### Built With
 
